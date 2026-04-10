@@ -16,9 +16,8 @@ export const getDistrictCenter = (district: string): [number, number] => {
   console.warn('[mapConfig] getDistrictCenter is deprecated. Use GPS coordinates instead.');
   console.warn(`[mapConfig] Attempted to get center for district: "${district}"`);
 
-  // REMOVED: All hardcoded Siliguri and district centers
-  // Return world view center as fallback - map should zoom to actual report locations
-  return [0, 0];  // World view (lng, lat)
+  // UPDATED: Return Tamil Nadu, India as fallback instead of [0, 0]
+  return [78.6569, 11.1271];  // Tamil Nadu center (lng, lat)
 };
 
 /**

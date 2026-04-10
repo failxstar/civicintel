@@ -16,7 +16,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { motion, AnimatePresence } from 'motion/react';
 import { Report, User } from '../App';
-import { translations } from './translations';
+import { TranslationStrings, translations } from './translations';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { getDistrictCenter, generateRandomCoordinates } from '../utils/mapConfig';
 import { calculateBatchRiskScores, prepareHeatmapData, RiskAssessment } from '../utils/riskScoring';
@@ -63,13 +63,13 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
     const t = translations[user.language];
 
     const filterOptions: { value: FilterType; label: string; color: string }[] = [
-        { value: 'all', label: t.allReports, color: 'bg-gray-500' },
-        { value: 'road', label: t.road, color: 'bg-red-500' },
-        { value: 'garbage', label: t.garbage, color: 'bg-orange-500' },
-        { value: 'water', label: t.water, color: 'bg-blue-500' },
-        { value: 'streetlight', label: t.streetlight, color: 'bg-yellow-500' },
-        { value: 'drainage', label: 'Drainage', color: 'bg-cyan-500' },
-        { value: 'unresolved', label: t.unresolved, color: 'bg-red-600' }
+        { value: 'all', label: t.allReports, color: '#6b7280' },
+        { value: 'road', label: t.road, color: '#ef4444' },
+        { value: 'garbage', label: t.garbage, color: '#f97316' },
+        { value: 'water', label: t.water, color: '#3b82f6' },
+        { value: 'streetlight', label: t.streetlight, color: '#eab308' },
+        { value: 'drainage', label: t.drainage, color: '#06b6d4' },
+        { value: 'unresolved', label: t.unresolved, color: '#dc2626' }
     ];
 
     const getStatusColor = (status: Report['status']) => {
@@ -313,11 +313,11 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
           
           <div style="margin: 12px 0; padding: 12px; background: ${riskColor}10; border-radius: 8px; border-left: 3px solid ${riskColor};">
             <div style="font-size: 12px; font-weight: 600; color: ${riskColor}; margin-bottom: 4px;">
-              🎯 Risk Score: ${risk?.score || 'N/A'}/100 (${risk?.level.toUpperCase() || 'Unknown'})
+              🎯 ${t.riskScore}: ${risk?.score || t.na}/100 (${risk?.level ? (t as any)[risk.level] : t.unknown})
             </div>
             ${risk?.nearestInfrastructure ? `
               <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
-                📌 ${risk.nearestInfrastructure.distance}m from ${risk.nearestInfrastructure.name}
+                📌 ${risk.nearestInfrastructure.distance}m ${t.from} ${risk.nearestInfrastructure.name}
               </div>
             ` : ''}
           </div>
@@ -355,7 +355,7 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
               font-size: 11px;
               font-weight: 500;
             ">
-              ⬆ ${report.upvotes} upvotes
+              ⬆ ${report.upvotes} ${t.upvotesLabel}
             </span>
           </div>
           
@@ -377,7 +377,7 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
             onmouseover="this.style.backgroundColor='#2563eb'"
             onmouseout="this.style.backgroundColor='#3b82f6'"
           >
-            👁 View Full Details
+            👁 ${t.viewDetails}
           </button>
         </div>
       `;
@@ -468,11 +468,11 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
             ${config.emoji} ${item.name}
           </h4>
           <p style="margin: 4px 0; font-size: 12px; color: #666;">
-            Type: ${item.type.replace('_', ' ')}
+            ${t.typeLabel}: ${item.type.replace('_', ' ')}
           </p>
           ${item.operatingHours ? `
             <p style="margin: 4px 0; font-size: 12px; color: #666;">
-              Hours: ${item.operatingHours}
+              ${t.hours}: ${item.operatingHours}
             </p>
           ` : ''}
         </div>
@@ -517,15 +517,14 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
     return (
         <div className="flex flex-col bg-background relative" style={{ height: 'calc(100vh - 5rem)' }}>
             {/* Header */}
-            <div className="bg-white border-b sticky top-0 z-50 flex-shrink-0">
-                <div className="p-4">
+            <div className="bg-white border-b sticky top-0 z-50 flex-shrink-0" style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <div className="p-4 pt-6">
                     <div className="flex items-center justify-between mb-3">
-                        <h1 className="text-xl font-bold text-primary flex items-center gap-2">
-                            <Activity className="w-5 h-5" />
-                            Smart Heatmap Intelligence
+                        <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#064e3b', letterSpacing: '-0.025em', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                            {t.smartHeatmap}
                         </h1>
-                        <Badge variant="secondary" className="text-xs">
-                            Risk-Based Analysis
+                        <Badge variant="secondary" className="text-xs bg-[#f0fdf4] text-[#166534] border-none font-bold">
+                            {t.realTimeRisk}
                         </Badge>
                     </div>
 
@@ -539,7 +538,10 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
                                 className="whitespace-nowrap"
                                 onClick={() => setSelectedFilter(option.value)}
                             >
-                                <div className={`w-2 h-2 rounded-full ${option.color} mr-2`}></div>
+                                <div
+                                    className="w-2 h-2 rounded-full mr-2"
+                                    style={{ backgroundColor: option.color }}
+                                ></div>
                                 {option.label}
                             </Button>
                         ))}
@@ -554,7 +556,7 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
                             className="text-xs"
                         >
                             <Layers className="w-3 h-3 mr-1" />
-                            Heatmap
+                            {t.heatmap}
                         </Button>
                         <Button
                             variant={showPins ? "default" : "outline"}
@@ -563,7 +565,7 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
                             className="text-xs"
                         >
                             <MapPin className="w-3 h-3 mr-1" />
-                            Pins
+                            {t.pins}
                         </Button>
                         <Button
                             variant={showInfrastructure ? "default" : "outline"}
@@ -571,7 +573,7 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
                             onClick={() => setShowInfrastructure(!showInfrastructure)}
                             className="text-xs"
                         >
-                            🏥 Infrastructure
+                            🏥 {t.infrastructure}
                         </Button>
                         <Button
                             variant={showLiveLocation ? "default" : "outline"}
@@ -580,7 +582,7 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
                             className="text-xs"
                         >
                             <Navigation className="w-3 h-3 mr-1" />
-                            Live Location {gpsLoading && '⏳'}
+                            {t.liveLocation} {gpsLoading && '⏳'}
                         </Button>
                     </div>
                 </div>
@@ -598,50 +600,50 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
                 <div className="absolute top-4 left-4 z-20 space-y-2">
                     <div className="bg-white/95 backdrop-blur-sm px-3 py-2 rounded-lg shadow-lg">
                         <div className="text-xs font-semibold text-gray-600">📍 {user.district}</div>
-                        <div className="text-sm font-bold">{filteredReports.length} reports</div>
+                        <div className="text-sm font-bold">{filteredReports.length} {t.reports}</div>
                     </div>
 
                     {/* Risk Distribution */}
                     <div className="bg-white/95 backdrop-blur-sm px-3 py-2 rounded-lg shadow-lg text-xs space-y-1">
-                        <div className="font-semibold text-gray-700 mb-1">Risk Distribution</div>
+                        <div className="font-semibold text-gray-700 mb-1">{t.riskDistribution}</div>
                         <div className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full" style={{ background: '#dc2626' }}></span>
-                            <span>Critical: {riskStats.critical}</span>
+                            <span>{t.critical}: {riskStats.critical}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full" style={{ background: '#ea580c' }}></span>
-                            <span>High: {riskStats.high}</span>
+                            <span>{t.high}: {riskStats.high}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full" style={{ background: '#eab308' }}></span>
-                            <span>Medium: {riskStats.medium}</span>
+                            <span>{t.medium}: {riskStats.medium}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full" style={{ background: '#22c55e' }}></span>
-                            <span>Low: {riskStats.low}</span>
+                            <span>{t.low}: {riskStats.low}</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Legend */}
                 <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-3 rounded-lg shadow-lg text-xs z-20">
-                    <div className="font-semibold mb-2">Heatmap Legend</div>
+                    <div className="font-semibold mb-2">{t.heatmapLegend}</div>
                     <div className="space-y-1">
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded" style={{ background: '#22c55e' }}></div>
-                            <span>Low Risk</span>
+                            <span>{t.lowRisk}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded" style={{ background: '#eab308' }}></div>
-                            <span>Medium</span>
+                            <span>{t.medium}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded" style={{ background: '#ea580c' }}></div>
-                            <span>High</span>
+                            <span>{t.high}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded" style={{ background: '#dc2626' }}></div>
-                            <span>Critical</span>
+                            <span>{t.critical}</span>
                         </div>
                     </div>
                 </div>
@@ -687,14 +689,14 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
                                         }}
                                     >
                                         <div className="text-sm font-bold mb-1">
-                                            Risk Score: {riskAssessments.get(selectedPin.id)!.score}/100
+                                            {t.riskScore}: {riskAssessments.get(selectedPin.id)!.score}/100
                                         </div>
                                         <div className="text-xs text-gray-600">
-                                            Level: {riskAssessments.get(selectedPin.id)!.level.toUpperCase()}
+                                            {t.level}: {t[selectedPin.priority as keyof TranslationStrings] || (t as any)[riskAssessments.get(selectedPin.id)?.level || 'unknown']}
                                         </div>
                                         {riskAssessments.get(selectedPin.id)!.nearestInfrastructure && (
                                             <div className="text-xs text-gray-600 mt-1">
-                                                📌 {riskAssessments.get(selectedPin.id)!.nearestInfrastructure!.distance}m from{' '}
+                                                📌 {riskAssessments.get(selectedPin.id)!.nearestInfrastructure!.distance}m {t.from}{' '}
                                                 {riskAssessments.get(selectedPin.id)!.nearestInfrastructure!.name}
                                             </div>
                                         )}

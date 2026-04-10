@@ -18,28 +18,28 @@ export function AnalyticsScreen({ reports, user }: AnalyticsScreenProps) {
 
   const statsCards = [
     {
-      title: 'Total Reports',
+      title: t.totalReports,
       value: insights.totalReports,
       icon: BarChart3,
       color: 'bg-blue-50 text-blue-700',
       iconColor: 'text-blue-600'
     },
     {
-      title: 'Resolution Rate',
+      title: t.resolutionRate,
       value: `${insights.resolvedPercentage}%`,
       icon: CheckCircle,
       color: 'bg-green-50 text-green-700',
       iconColor: 'text-green-600'
     },
     {
-      title: 'Avg. Resolution',
+      title: t.avgResolution,
       value: insights.averageResolutionTime,
       icon: Clock,
       color: 'bg-purple-50 text-purple-700',
       iconColor: 'text-purple-600'
     },
     {
-      title: 'Active Citizens',
+      title: t.activeCitizens,
       value: Math.floor(insights.totalReports * 0.7),
       icon: Users,
       color: 'bg-orange-50 text-orange-700',
@@ -66,10 +66,12 @@ export function AnalyticsScreen({ reports, user }: AnalyticsScreenProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-40">
-        <div className="p-4">
-          <h1 className="text-xl mb-1 text-primary">Analytics Dashboard</h1>
-          <p className="text-sm text-muted-foreground">{user.district}</p>
+      <div className="bg-white border-b sticky top-0 z-40" style={{ borderBottom: '1px solid #f1f5f9' }}>
+        <div className="p-4 pt-6">
+          <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#064e3b', letterSpacing: '-0.025em', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {t.analyticsDashboard}
+          </h1>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: '#4b5563' }}>{user.district}</p>
         </div>
       </div>
 
@@ -100,7 +102,7 @@ export function AnalyticsScreen({ reports, user }: AnalyticsScreenProps) {
         <Card className="p-4">
           <h3 className="font-medium mb-4 flex items-center gap-2">
             <BarChart3 className="w-4 h-4" />
-            Top Issue Types
+            {t.topIssueTypes}
           </h3>
           <div className="space-y-3">
             {insights.topIssueTypes.map((issue, index) => (
@@ -111,7 +113,7 @@ export function AnalyticsScreen({ reports, user }: AnalyticsScreenProps) {
                   </div>
                   <div>
                     <p className="text-sm font-medium capitalize">{issue.type}</p>
-                    <p className="text-xs text-muted-foreground">{issue.count} reports</p>
+                    <p className="text-xs text-muted-foreground">{issue.count} {t.reports}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -129,22 +131,22 @@ export function AnalyticsScreen({ reports, user }: AnalyticsScreenProps) {
         <Card className="p-4">
           <h3 className="font-medium mb-4 flex items-center gap-2">
             <MapPin className="w-4 h-4" />
-            Critical Areas
+            {t.criticalAreas}
           </h3>
           <div className="space-y-3">
             {insights.criticalAreas.map((area, index) => (
               <div key={area.ward} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`w-3 h-3 rounded-full ${index === 0 ? 'bg-red-500' :
-                      index === 1 ? 'bg-orange-500' : 'bg-yellow-500'
+                    index === 1 ? 'bg-orange-500' : 'bg-yellow-500'
                     }`} />
                   <div>
                     <p className="text-sm font-medium">{area.ward}</p>
-                    <p className="text-xs text-muted-foreground">Needs attention</p>
+                    <p className="text-xs text-muted-foreground">{t.needsAttention}</p>
                   </div>
                 </div>
                 <Badge variant={index === 0 ? "destructive" : index === 1 ? "default" : "secondary"}>
-                  {area.issueCount} issues
+                  {area.issueCount} {t.issuesLabel}
                 </Badge>
               </div>
             ))}
@@ -155,26 +157,26 @@ export function AnalyticsScreen({ reports, user }: AnalyticsScreenProps) {
         <Card className="p-4">
           <h3 className="font-medium mb-4 flex items-center gap-2">
             <Clock className="w-4 h-4" />
-            Recent Activity
+            {t.recentActivity}
           </h3>
           <div className="space-y-3">
             {recentActivity.map((activity) => (
               <div key={activity.id} className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0">
                 <div className={`w-2 h-2 rounded-full mt-2 ${activity.status === 'resolved' ? 'bg-green-500' :
-                    activity.status === 'submitted' ? 'bg-yellow-500' : 'bg-red-500'
+                  activity.status === 'submitted' ? 'bg-yellow-500' : 'bg-red-500'
                   }`} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{activity.title}</p>
                   <p className="text-xs text-muted-foreground">{activity.ward}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <Badge className={`text-xs ${activity.priority === 'high' ? 'bg-red-100 text-red-800' :
-                        activity.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-green-100 text-green-800'
+                      activity.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-green-100 text-green-800'
                       }`}>
                       {activity.priority}
                     </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {activity.timeAgo}m ago
+                    <span className="text-sm text-gray-600">
+                      {activity.aiConfidence}% {t.confidence || 'confidence'}
                     </span>
                   </div>
                 </div>
@@ -185,10 +187,10 @@ export function AnalyticsScreen({ reports, user }: AnalyticsScreenProps) {
 
         {/* Performance Metrics */}
         <Card className="p-4">
-          <h3 className="font-medium mb-4">Performance Insights</h3>
+          <h3 className="font-medium mb-4">{t.performanceInsights}</h3>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-sm">AI Classification Accuracy</span>
+              <span className="text-sm">{t.aiAccuracy}</span>
               <div className="flex items-center gap-2">
                 <div className="w-20 h-2 bg-gray-200 rounded-full">
                   <div className="w-[91%] h-2 bg-green-500 rounded-full"></div>
@@ -198,17 +200,17 @@ export function AnalyticsScreen({ reports, user }: AnalyticsScreenProps) {
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm">Response Time (Target: 2 days)</span>
+              <span className="text-sm">{t.responseTimeTarget}</span>
               <div className="flex items-center gap-2">
                 <div className="w-20 h-2 bg-gray-200 rounded-full">
                   <div className="w-[85%] h-2 bg-blue-500 rounded-full"></div>
                 </div>
-                <span className="text-sm font-medium">1.7d avg</span>
+                <span className="text-sm font-medium">1.7{t.daysShort}</span>
               </div>
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm">Citizen Satisfaction</span>
+              <span className="text-sm">{t.citizenSatisfaction}</span>
               <div className="flex items-center gap-2">
                 <div className="w-20 h-2 bg-gray-200 rounded-full">
                   <div className="w-[88%] h-2 bg-purple-500 rounded-full"></div>

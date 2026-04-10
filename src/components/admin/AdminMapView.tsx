@@ -25,9 +25,9 @@ export function AdminMapView({ reports, onSelectReport }: AdminMapViewProps) {
 
     // Initialize map
     // DYNAMIC: Center on first report or world view
-    const centerLat = reports[0]?.coordinates?.lat || 0;
-    const centerLng = reports[0]?.coordinates?.lng || 0;
-    const zoom = reports.length > 0 ? 13 : 2;
+    const centerLat = reports[0]?.coordinates?.lat || 11.1271;
+    const centerLng = reports[0]?.coordinates?.lng || 78.6569;
+    const zoom = reports.length > 0 ? 13 : 7;
 
     const map = L.map(mapContainerRef.current).setView([centerLat, centerLng], zoom);
     mapRef.current = map;

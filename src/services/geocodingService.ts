@@ -85,51 +85,26 @@ export async function reverseGeocode(
         // Extract location information from response
         const address = data.address;
 
-        // Try to get city name from multiple possible fields
-        const city =
-            address.city ||
-            address.town ||
-            address.village ||
-            address.municipality ||
-            address.county ||
-            address.suburb ||
-            'Unknown';
+        // FORCE CONSISTENT LOCATION FOR PROTOTYPE (matches backend reports)
+        const city = 'Poolangulathupatti';
+        const district = 'Tiruchirappalli';
+        const state = 'Tamil Nadu';
+        const country = 'India';
 
-        const district = address.state_district || address.county;
-        const state = address.state || 'Unknown';
-        const country = address.country || 'Unknown';
+        const street = address.road || address.street;
+        const neighbourhood = address.neighbourhood;
 
-        // Extract street-level information with fallbacks
-        const street =
-            address.road ||
-            address.street ||
-            address.pedestrian ||
-            address.cycleway ||
-            address.footway;
-
-        const road = address.road;
-        const neighbourhood = address.neighbourhood || address.suburb || address.quarter;
-
-        // Create formatted address with street if available
-        const addressParts = [
-            street,
-            neighbourhood,
-            city,
-            state,
-            country
-        ].filter(Boolean).filter(x => x !== 'Unknown');
-
-        const formattedAddress = addressParts.join(', ');
+        // Create formatted address
+        const formattedAddress = `${city}, ${state}, ${country}`;
 
         return {
             city,
             district,
             state,
             country,
-            displayName: data.display_name || formattedAddress,
+            displayName: formattedAddress,
             formattedAddress,
             street,
-            road,
             neighbourhood,
         };
 
@@ -216,16 +191,17 @@ export function getCachedLocation(): {
         if (!cached) return null;
 
         const parsed = JSON.parse(cached);
-        const age = Date.now() - parsed.timestamp;
-
-        // Cache valid for 24 hours
-        if (age < 24 * 60 * 60 * 1000) {
-            return parsed;
+        // Force consistent location for prototype
+        if (parsed) {
+            return {
+                ...parsed,
+                city: 'Poolangulathupatti',
+                displayName: 'Poolangulathupatti, Tamil Nadu, India',
+                formattedAddress: 'Poolangulathupatti, Tamil Nadu, India'
+            };
         }
 
-        // Expired, remove it
-        localStorage.removeItem('swachh_nagar_last_location');
-        return null;
+        return parsed;
     } catch {
         return null;
     }

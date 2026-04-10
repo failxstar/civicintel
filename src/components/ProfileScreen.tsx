@@ -23,9 +23,10 @@ interface ProfileScreenProps {
 
 const languageOptions = [
   { value: 'english', label: 'English' },
+  { value: 'tamil', label: 'தமிழ் (Tamil)' },
   { value: 'hindi', label: 'हिन्दी (Hindi)' },
-  { value: 'bengali', label: 'বাংলা (Bengali)' },
-  { value: 'nagpuri', label: 'नागपुरी (Nagpuri)' }
+  { value: 'malayalam', label: 'മലയാളം (Malayalam)' },
+  { value: 'telugu', label: 'తెలుగు (Telugu)' }
 ];
 
 export function ProfileScreen({
@@ -35,7 +36,7 @@ export function ProfileScreen({
   onToggleOnline,
   onReportAgain
 }: ProfileScreenProps) {
-  const t = translations[user.language];
+  const t = translations[user.language as Language];
 
   const getStatusColor = (status: Report['status']) => {
     switch (status) {
@@ -50,7 +51,7 @@ export function ProfileScreen({
   const getStatusText = (status: Report['status']) => {
     switch (status) {
       case 'pending': return t.statusPending;
-      case 'acknowledged': return 'Acknowledged';
+      case 'acknowledged': return t.statusAcknowledged;
       case 'submitted': return t.statusInProgress;
       case 'resolved': return t.statusResolved;
       default: return status;
@@ -105,100 +106,16 @@ export function ProfileScreen({
     onReportAgain();
   };
 
-  // Mock user reports (since we're using hardcoded data)
-  const userReports: Report[] = [
-    {
-      id: '101',
-      title: 'Broken streetlight near bus stop',
-      description: 'Streetlight has been non-functional for 3 days',
-      imageUrl: 'https://i.pinimg.com/736x/c5/30/95/c530952c19fc1c1258fe15a9714562db.jpg?w=400',
-      district: user.district || 'Anna Nagar',
-      ward: 'Anna Nagar',
-      street: 'Anna Nagar',
-      coordinates: user.coordinates,
-      distance: 0.1,
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-      aiTag: 'Streetlight',
-      aiConfidence: 94,
-      status: 'submitted',
-      upvotes: 15,
-      comments: [],
-      severity: 6,
-      type: 'Streetlight',
-      userId: 'current-user',
-      hasUserUpvoted: false
-    },
-    {
-      id: '102',
-      title: 'Garbage overflow in residential area',
-      description: 'Multiple garbage bins overflowing for past week',
-      imageUrl: 'https://i.pinimg.com/736x/5c/7c/6b/5c7c6b139ab69341800be13b9ba038cb.jpg?w=400',
-      district: user.district || 'T. Nagar',
-      ward: 'T. Nagar',
-      street: 'T. Nagar',
-      coordinates: user.coordinates,
-      distance: 0.5,
-      timestamp: new Date(Date.now() - 72 * 60 * 60 * 1000),
-      aiTag: 'Garbage',
-      aiConfidence: 89,
-      status: 'resolved',
-      upvotes: 8,
-      comments: [],
-      severity: 7,
-      type: 'Garbage',
-      userId: 'current-user',
-      hasUserUpvoted: false
-    },
-    {
-      id: '103',
-      title: 'Pothole on main road',
-      description: 'Large pothole causing traffic issues',
-      imageUrl: 'https://i.pinimg.com/736x/d0/3f/c2/d03fc2fe363172d449e218a84b557508.jpg?w=400',
-      district: user.district || 'Velachery',
-      ward: 'Velachery',
-      street: 'Velachery',
-      coordinates: user.coordinates,
-      distance: 0.8,
-      timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000),
-      aiTag: 'Road Infrastructure',
-      aiConfidence: 96,
-      status: 'acknowledged',
-      upvotes: 23,
-      comments: [],
-      severity: 8,
-      type: 'Road',
-      userId: 'current-user',
-      hasUserUpvoted: false
-    },
-    {
-      id: '104',
-      title: 'Water supply disruption',
-      description: 'No water supply for 2 days in the area',
-      imageUrl: 'https://i.pinimg.com/736x/5d/d9/86/5dd9865dc83354c74323a381faf3d3e3.jpg?w=400',
-      district: user.district || 'Mylapore',
-      ward: 'Mylapore',
-      street: 'Mylapore',
-      coordinates: user.coordinates,
-      distance: 1.2,
-      timestamp: new Date(Date.now() - 96 * 60 * 60 * 1000),
-      aiTag: 'Water Supply',
-      aiConfidence: 92,
-      status: 'resolved',
-      upvotes: 31,
-      comments: [],
-      severity: 9,
-      type: 'Water',
-      userId: 'current-user',
-      hasUserUpvoted: false
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-40">
-        <div className="p-4">
-          <h1 className="text-xl text-primary">{t.profile}</h1>
+      <div className="bg-white border-b sticky top-0 z-40" style={{ borderBottom: '1px solid #f1f5f9' }}>
+        <div className="p-4 pt-6">
+          <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#064e3b', letterSpacing: '-0.025em', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {t.profile}
+          </h1>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: '#4b5563' }}>{t.memberSince} 2024</p>
         </div>
       </div>
 
@@ -211,22 +128,25 @@ export function ProfileScreen({
             </div>
             <div>
               <h2 className="font-medium">Demo User</h2>
+              <p style={{ color: '#ef4444', fontSize: '10px', fontWeight: 600, marginTop: '-2px', marginBottom: '2px' }}>
+                the data used here are hardcoded for practical demo usage.
+              </p>
               <p className="text-sm text-muted-foreground">📍 {user.district}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <p className="text-lg font-medium">{userReports.length}</p>
-              <p className="text-xs text-muted-foreground">Reports</p>
+              <p className="text-lg font-medium">{reports.length}</p>
+              <p className="text-xs text-muted-foreground">{t.reportsLabel}</p>
             </div>
             <div>
-              <p className="text-lg font-medium">{userReports.reduce((sum, report) => sum + report.upvotes, 0)}</p>
-              <p className="text-xs text-muted-foreground">Upvotes</p>
+              <p className="text-lg font-medium">{reports.reduce((sum, report) => sum + report.upvotes, 0)}</p>
+              <p className="text-xs text-muted-foreground">{t.upvotesLabel}</p>
             </div>
             <div>
-              <p className="text-lg font-medium">{userReports.filter(r => r.status === 'resolved').length}</p>
-              <p className="text-xs text-muted-foreground">Resolved</p>
+              <p className="text-lg font-medium">{reports.filter(r => r.status === 'resolved').length}</p>
+              <p className="text-xs text-muted-foreground">{t.resolvedLabel}</p>
             </div>
           </div>
         </div>
@@ -234,9 +154,9 @@ export function ProfileScreen({
         {/* Tabs */}
         <Tabs defaultValue="settings" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="reports">My Reports</TabsTrigger>
-            <TabsTrigger value="tech">Tech Features</TabsTrigger>
+            <TabsTrigger value="settings">{t.settings}</TabsTrigger>
+            <TabsTrigger value="reports">{t.myReports}</TabsTrigger>
+            <TabsTrigger value="tech">{t.techFeatures}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="settings" className="space-y-4 mt-4">
@@ -279,7 +199,7 @@ export function ProfileScreen({
                       <WifiOff className="w-4 h-4 text-red-500" />
                     )}
                     <span className="text-sm">
-                      {user.isOnline ? t.onlineMode : t.offlineMode} (Select Automatically)
+                      {user.isOnline ? t.onlineMode : t.offlineMode} ({t.selectAutomatically})
                     </span>
                   </div>
                   <Switch
@@ -297,7 +217,7 @@ export function ProfileScreen({
               <h3 className="font-medium mb-4">{t.myReports}</h3>
 
               <div className="space-y-3">
-                {userReports.map((report) => (
+                {reports.map((report) => (
                   <motion.div
                     key={report.id}
                     className="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer"
@@ -343,7 +263,7 @@ export function ProfileScreen({
                                 onClick={() => handleDownloadCertificate(report.id)}
                               >
                                 <Download className="w-3 h-3" />
-                                Download Certificate
+                                {t.downloadCertificate}
                               </Button>
 
                               {/* Report Again Button */}
@@ -354,12 +274,12 @@ export function ProfileScreen({
                                 onClick={() => handleReportAgain(report)}
                               >
                                 <RotateCcw className="w-3 h-3" />
-                                Report Again
+                                {t.reportAgain}
                               </Button>
 
                               {/* Rating Section */}
                               <div className="flex items-center gap-1 ml-auto">
-                                <span className="text-xs text-muted-foreground">Rate:</span>
+                                <span className="text-xs text-muted-foreground">{t.rateLabel}</span>
                                 <div className="flex">
                                   {[1, 2, 3, 4, 5].map((star) => (
                                     <Star
@@ -375,7 +295,7 @@ export function ProfileScreen({
                           {report.status === 'acknowledged' && (
                             <div className="flex items-center gap-2 text-xs text-blue-600">
                               <Clock className="w-3 h-3" />
-                              <span>Issue acknowledged by government</span>
+                              <span>{t.acknowledgedByGov}</span>
                             </div>
                           )}
 
@@ -386,7 +306,7 @@ export function ProfileScreen({
                               className="text-xs h-auto py-1 px-2"
                               onClick={() => handleReportAgain(report)}
                             >
-                              Report Again
+                              {t.reportAgain}
                             </Button>
                           )}
                         </div>
@@ -396,9 +316,9 @@ export function ProfileScreen({
                 ))}
               </div>
 
-              {userReports.length === 0 && (
+              {reports.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
-                  <p className="text-sm">No reports yet</p>
+                  <p className="text-sm">{t.noReportsYet}</p>
                   <Button
                     variant="outline"
                     size="sm"

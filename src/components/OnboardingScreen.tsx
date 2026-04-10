@@ -9,8 +9,8 @@ const languageOptions = [
   { value: 'english', label: 'English' },
   { value: 'tamil', label: 'தமிழ் (Tamil)' },
   { value: 'hindi', label: 'हिन्दी (Hindi)' },
-  { value: 'bengali', label: 'বাংলা (Bengali)' },
-  { value: 'nagpuri', label: 'नागपुरी (Nagpuri)' }
+  { value: 'malayalam', label: 'മലയാളം (Malayalam)' },
+  { value: 'telugu', label: 'తెలుగు (Telugu)' }
 ];
 
 interface OnboardingScreenProps {
@@ -107,20 +107,28 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
 
       switch (geoError.type) {
         case 'PERMISSION_DENIED':
-          message = t.allowLocation || 'Location access is required to show nearby civic issues.';
+          message = t.locationAccessRequired;
           break;
         case 'POSITION_UNAVAILABLE':
-          message = 'Location information is unavailable. Please check your GPS settings.';
+          message = t.locationUnavailable;
           break;
         case 'TIMEOUT':
-          message = 'Location detection timed out. Please try again.';
+          message = t.locationTimeout;
           break;
         default:
-          message = 'An error occurred while getting your location.';
+          message = t.locationErrorGeneral;
       }
 
       setLocationError(message);
-      setLocationStep('error');
+
+      // Only switch to error screen if we were waiting for it
+      // Don't interrupt user if they are entering manually or already succeeded
+      setLocationStep(current => {
+        if (current === 'request' || current === 'detecting') {
+          return 'error';
+        }
+        return current;
+      });
     }
   }, [geoError, t]);
 
@@ -173,7 +181,7 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
           </div>
           <h1 className="text-xl font-bold text-primary">CivicIntel</h1>
           <p className="text-muted-foreground">
-            {translations.english.selectLanguage}
+            {t.selectLanguage}
           </p>
         </div>
 
@@ -194,7 +202,7 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
           className="mt-8 w-full max-w-sm"
           onClick={() => setStep('location')}
         >
-          {translations[currentLanguage].continue}
+          {t.continue}
         </Button>
       </div>
     );
@@ -245,7 +253,7 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
             className="w-full"
             onClick={() => setLocationStep('manual')}
           >
-            Enter Location Manually
+            {t.enterManuallyInstead}
           </Button>
         </div>
       )}
@@ -276,10 +284,13 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
 
             <div className="space-y-2 text-sm text-green-800">
               <div>
-                <strong>{t.city}</strong> {locationData.city}
+                <strong>{t.cityLabel}</strong> {locationData.city}
+                {(locationData.city !== locationData.formattedAddress.split(',')[0]) && (
+                  <span className="text-xs ml-2 opacity-70">({locationData.formattedAddress.split(',')[0]})</span>
+                )}
               </div>
               <div>
-                <strong>{t.state}</strong> {locationData.state}
+                <strong>{t.stateLabel}</strong> {locationData.state}
               </div>
               <div className="text-xs opacity-75">
                 📍 {locationData.coordinates.lat.toFixed(6)}, {locationData.coordinates.lng.toFixed(6)}
@@ -332,7 +343,7 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
             onClick={handleRetry}
           >
             <RefreshCw className="w-4 h-4 mr-2" />
-            Retry
+            {t.retry}
           </Button>
 
           <Button
@@ -340,7 +351,7 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
             className="w-full"
             onClick={() => setLocationStep('manual')}
           >
-            Enter Manually Instead
+            {t.enterManuallyInstead}
           </Button>
         </div>
       )}
@@ -349,20 +360,25 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
       {locationStep === 'manual' && (
         <div className="w-full max-w-sm space-y-4">
           <div className="text-center mb-4">
-            <h2 className="text-lg font-semibold mb-1">Enter Your Location</h2>
+            <h2 className="text-lg font-semibold mb-1">{t.enterYourLocation}</h2>
             <p className="text-sm text-muted-foreground">
-              Type your city or area name
+              {t.typeCityOrArea}
             </p>
           </div>
 
           <label className="block">
-            <span className="text-sm font-medium mb-1 block">City / Area</span>
+            <span className="text-sm font-medium mb-1 block">{t.cityAreaLabel}</span>
             <input
               type="text"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="e.g., Chennai, Mumbai, Delhi"
+              placeholder={t.cityPlaceholder}
               value={manualCity}
               onChange={(e) => setManualCity(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && manualCity.trim()) {
+                  handleManualLocation();
+                }
+              }}
             />
           </label>
 
@@ -371,7 +387,7 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
             onClick={handleManualLocation}
             disabled={!manualCity.trim()}
           >
-            Continue
+            {t.continue}
           </Button>
 
           <Button
@@ -380,7 +396,7 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
             onClick={() => setLocationStep('request')}
           >
             <MapPin className="w-4 h-4 mr-2" />
-            Use GPS Instead
+            {t.useGpsInstead}
           </Button>
         </div>
       )}

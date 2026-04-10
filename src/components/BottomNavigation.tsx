@@ -15,38 +15,42 @@ export function BottomNavigation({ currentScreen, onScreenChange, language }: Bo
 
   const navItems = [
     { id: 'home' as Screen, icon: Home, label: t.home },
-    { id: 'analytics' as Screen, icon: BarChart3, label: 'Analytics' },
-    { id: 'report' as Screen, icon: Plus, label: t.report, isCenter: true },
     { id: 'map' as Screen, icon: Map, label: t.map },
+    {
+      id: 'report' as Screen, icon: ({ className }: { className?: string }) => (
+        <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+          <path d="M12 9v4" />
+          <path d="M12 17h.01" />
+        </svg>
+      ), label: t.report
+    },
+    { id: 'analytics' as Screen, icon: BarChart3, label: t.analyticsDashboard },
     { id: 'profile' as Screen, icon: User, label: t.profile },
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 max-w-sm mx-auto bg-white border-t border-gray-200 px-4 py-2 safe-area-pb z-[9999] shadow-lg pointer-events-auto">
-      <div className="flex items-center justify-around pointer-events-auto">
+    <div
+      className="fixed bottom-0 left-0 right-0 w-full bg-white px-2 py-3 z-[9999] shadow-[0_-2px_10px_rgba(0,0,0,0.03)]"
+      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+    >
+      <div className="flex items-center justify-between max-w-7xl mx-auto px-4">
         {navItems.map((item) => {
-          const Icon = item.icon;
+          const Icon = item.icon as any;
           const isActive = currentScreen === item.id;
-          
+
           return (
-            <motion.button
+            <button
               key={item.id}
-              className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-colors ${
-                item.isCenter
-                  ? 'bg-primary text-primary-foreground shadow-lg'
-                  : isActive
-                  ? 'text-primary bg-primary/10'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
+              className={`flex items-center gap-2 py-2 px-3 transition-colors ${isActive ? 'text-[#059669]' : 'text-[#94a3b8]'
+                }`}
               onClick={() => onScreenChange(item.id)}
-              whileTap={{ scale: 0.95 }}
-              whileHover={{ scale: item.isCenter ? 1.05 : 1.02 }}
             >
-              <Icon className={`w-5 h-5 ${item.isCenter ? 'w-6 h-6' : ''}`} />
-              <span className={`text-xs mt-1 ${item.isCenter ? 'hidden' : ''}`}>
+              <Icon className="w-[18px] h-[18px]" />
+              <span className={`text-[12px] font-bold ${isActive ? 'inline' : 'hidden md:inline'}`}>
                 {item.label}
               </span>
-            </motion.button>
+            </button>
           );
         })}
       </div>

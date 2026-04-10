@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ArrowUp, MessageCircle, Flag, X, Mic, Building2, Clock, MapPin, CheckCircle, Trash2 } from 'lucide-react';
+import { Search, ArrowUp, MessageCircle, Flag, X, Mic, Building2, Clock, MapPin, CheckCircle, Trash2, Bell } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
@@ -22,6 +22,8 @@ interface HomeScreenProps {
   onReportAgain: () => void;
   onDeleteReport?: (reportId: string) => void;
   onFlag?: (reportId: string) => void;
+  unreadNotificationsCount?: number;
+  onOpenNotifications?: () => void;
 }
 
 export function HomeScreen({
@@ -34,7 +36,9 @@ export function HomeScreen({
   onCloseModal,
   onReportAgain,
   onDeleteReport,
-  onFlag
+  onFlag,
+  unreadNotificationsCount = 0,
+  onOpenNotifications
 }: HomeScreenProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [newComment, setNewComment] = useState('');
@@ -106,7 +110,7 @@ export function HomeScreen({
   const getStatusText = (status: Report['status']) => {
     switch (status) {
       case 'pending': return t.statusPending;
-      case 'acknowledged': return 'Acknowledged';
+      case 'acknowledged': return t.statusAcknowledged;
       case 'submitted': return t.statusInProgress;
       case 'resolved': return t.statusResolved;
       default: return status;
@@ -192,141 +196,208 @@ export function HomeScreen({
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ backgroundColor: '#fcfcfc', fontFamily: "'Plus Jakarta Sans', 'system-ui', sans-serif" }}>
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-40 shadow-sm">
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-3">
+      <div className="bg-white border-b sticky top-0 z-10" style={{ borderBottom: '1px solid #f1f5f9' }}>
+        <div className="p-4 pt-6">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-xl font-bold text-primary">CivicIntel</h1>
-              <p className="text-sm text-muted-foreground">
-                {(() => {
-                  // Prefer city over highway numbers (NH83, SH12, etc.)
-                  const street = user.location?.street || '';
-                  const isHighway = /^(NH|SH|MDR|ODR)\d+/i.test(street);
-                  return isHighway ? (user.location?.city || street) : (street || user.location?.city || t.siliguriMunicipalCorporation);
-                })()}
+              <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#064e3b', letterSpacing: '-0.025em' }}>CivicIntel</h1>
+              <p style={{ fontSize: '13px', fontWeight: 600, color: '#4b5563' }}>
+                {user.location?.city || user.district || t.siliguriMunicipalCorporation}
               </p>
             </div>
-            <div className="text-right">
-              <div className="text-sm font-medium text-green-600">{filteredReports.length} {t.activeReports}</div>
-              <div className="text-xs text-muted-foreground">{t.realTimeUpdates}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <button
+                onClick={onOpenNotifications}
+                style={{
+                  position: 'relative',
+                  padding: '8px',
+                  backgroundColor: '#f8fafc',
+                  borderRadius: '12px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#4b5563',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <Bell size={20} />
+                {unreadNotificationsCount > 0 && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '-4px',
+                    right: '-4px',
+                    backgroundColor: '#ef4444',
+                    color: 'white',
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    padding: '2px 6px',
+                    borderRadius: '10px',
+                    border: '2px solid white',
+                    boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)'
+                  }}>
+                    {unreadNotificationsCount}
+                  </span>
+                )}
+              </button>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '12px', fontWeight: 800, color: '#059669' }}>{filteredReports.length} {t.activeReportsCount}</div>
+                <div style={{ fontSize: '10px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.realTimeUpdates}</div>
+              </div>
             </div>
           </div>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder={t.search}
+          <div style={{ position: 'relative' }}>
+            <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', width: '16px', height: '16px' }} />
+            <input
+              placeholder={t.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-gray-50 border-gray-200"
+              style={{
+                width: '100%',
+                padding: '12px 12px 12px 48px',
+                backgroundColor: '#f8fafc',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: 500,
+                outline: 'none',
+                color: '#334155'
+              }}
             />
           </div>
-          <p className='mt-2 text-sm text-red-500'>{t.prototypeDataMessage}</p>
         </div>
       </div>
 
       {/* Reports Feed */}
-      <div className="p-3 space-y-4 bg-gray-50">
+      <div className="p-4 space-y-6" style={{ backgroundColor: '#fdfdfd' }}>
         {filteredReports.map((report) => (
           <motion.div
             key={report.id}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-all duration-200 flex flex-col"
+            className="bg-white shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-[#f1f5f9] cursor-pointer hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all duration-300"
+            style={{ borderRadius: '32px' }}
             onClick={() => onReportSelect(report)}
             whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.99 }}
           >
-            {/* Remove the priority ribbon */}
-
-            {/* Location full width at top */}
-            <div className="pl-4 pr-4 pt-4 pb-0 border-b border-gray-100">
-              <div className="flex items-center gap-2 mb-1">
-                <MapPin className="w-4 h-4 text-gray-500" />
-                <span className="font-medium text-gray-900">{report.district}</span>
-              </div>
-              <div className="flex items-center gap-3 mb-1">
-                <span className="text-gray-600">{report.distance}{t.kmAway}</span>
-                <div className="flex items-center justify-center gap-1 ml-auto mr-2">
-                  <Clock className="w-3 h-3 text-gray-500" />
-                  <span className="text-xs text-gray-600">{formatTimeAgo(report.timestamp)}</span>
+            {/* Header: Dept info and Time */}
+            <div style={{ padding: '24px 48px 8px 48px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div className="flex items-center gap-4">
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '12px',
+                    backgroundColor: '#eff6ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#3b82f6'
+                  }}
+                >
+                  <Building2 size={18} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '11px', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.05em', color: '#94a3b8', lineHeight: 1.2 }}>
+                    {getDepartmentInfo(report.type).name} {t.division}
+                  </div>
+                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#334155', lineHeight: 1.4 }}>
+                    {report.district}
+                  </div>
                 </div>
               </div>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.025em' }}>
+                {formatTimeAgo(report.timestamp).toUpperCase()}
+              </div>
             </div>
 
-            {/* Report title and description */}
-            <div className="mt-2 px-4 pb-2 flex-shrink-0">
-              <h4 className="font-semibold text-gray-900 text-base mb-1 leading-tight line-clamp-2">{report.title}</h4>
-              <p className="text-sm text-gray-700 leading-relaxed line-clamp-2">{report.description}</p>
-            </div>
-
-            {/* Media Carousel - 5:4 aspect ratio */}
-            <div className="relative w-full px-6">
-              <div className="w-full aspect-[5/4] overflow-hidden rounded-xl">
-                <MediaCarousel
-                  media={report.media || [{
-                    id: `${report.id}-main`,
-                    type: 'image',
-                    url: report.imageUrl
-                  }]}
-                  className="w-full h-full"
+            {/* Body: Image Left, Content Right (Pushed to former image position) */}
+            <div style={{ display: 'flex', padding: '16px 48px', gap: '32px', marginTop: '8px', alignItems: 'center', justifyContent: 'space-between' }}>
+              {/* Larger Aspect Ratio Image (Left side) */}
+              <div style={{
+                width: '160px',
+                height: '112px',
+                flexShrink: 0,
+                borderRadius: '20px',
+                overflow: 'hidden',
+                boxShadow: '0 8px 20px rgba(0,0,0,0.14)',
+                border: '1px solid #f1f5f9'
+              }}>
+                <ImageWithFallback
+                  src={report.imageUrl}
+                  alt={report.title}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
-              {report.isTamperDetected && (
-                <div className="absolute top-3 right-9 bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                  ⚠️ Verified
-                </div>
-              )}
-            </div>
 
-            {/* Actions */}
-            <div className="px-4 pb-4 pt-3 border-t border-gray-100 flex-shrink-0">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <motion.button
-                    className={`flex items-center gap-1 text-sm font-medium transition-all duration-200 px-3 py-2 rounded-lg shadow-md hover:shadow-lg ${report.hasUserUpvoted
-                      ? 'text-green-600 bg-green-50 border border-green-200 shadow-green-200'
-                      : 'text-gray-700 hover:text-blue-600 bg-white border border-gray-200 hover:bg-blue-50'
-                      }`}
-                    onClick={(e: React.MouseEvent) => handleUpvoteClick(e, report.id)}
-                    whileTap={{ scale: 1.1 }}
+              <div className="flex-1 min-w-0" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                <h4 style={{ fontWeight: 800, color: '#1e293b', fontSize: '20px', marginBottom: '4px', lineHeight: 1.2 }}>
+                  {report.title}
+                </h4>
+                <p style={{ fontSize: '13px', fontWeight: 600, color: '#cbd5e1', marginBottom: '16px' }}>
+                  {report.type}
+                </p>
+
+                <div className="flex flex-wrap gap-2">
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 800,
+                      padding: '6px 16px',
+                      borderRadius: '12px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      backgroundColor: '#f0fdf4',
+                      color: '#166534'
+                    }}
                   >
-                    <motion.div
-                      animate={report.hasUserUpvoted ? { scale: [1, 1.3, 1] } : {}}
-                      transition={{ duration: 0.3 }}
+                    {getStatusText(report.status)}
+                  </span>
+                  {report.priority === 'high' && (
+                    <span
+                      style={{
+                        backgroundColor: '#fff1f2',
+                        color: '#e11d48',
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        padding: '6px 16px',
+                        borderRadius: '12px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
                     >
-                      <ArrowUp className={`w-5 h-5 ${report.hasUserUpvoted ? 'fill-current' : ''}`} />
-                    </motion.div>
-                    <span className="font-semibold">{report.upvotes}</span>
-                  </motion.button>
-
-                  <button className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-all duration-200 px-3 py-2 rounded-lg shadow-md hover:shadow-lg bg-white border border-gray-200 hover:bg-blue-50">
-                    <MessageCircle className="w-5 h-5" />
-                    <span className="font-semibold">{report.comments.length}</span>
-                  </button>
-
-                  {/* Priority indicator */}
-                  {report.priority && (
-                    <div className={`flex items-center gap-1.5 text-base font-semibold px-4 py-2 rounded-full ${report.priority === 'high'
-                      ? 'bg-red-100 text-red-700'
-                      : report.priority === 'medium'
-                        ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-green-100 text-green-700'
-                      }`}>
-                      <span className={`w-2.5 h-2.5 rounded-full ${report.priority === 'high'
-                        ? 'bg-red-500'
-                        : report.priority === 'medium'
-                          ? 'bg-yellow-500'
-                          : 'bg-green-500'
-                        }`}></span>
-                      {report.priority.charAt(0).toUpperCase() + report.priority.slice(1)}
-                    </div>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#e11d48' }}></span>
+                      {t.urgent}
+                    </span>
                   )}
                 </div>
+              </div>
+            </div>
 
-                {/* Status badge moved to bottom right */}
-                <Badge className={`text-base font-semibold px-4 py-2 ${getStatusColor(report.status)}`}>
-                  {getStatusText(report.status)}
-                </Badge>
+            {/* Footer: Actions */}
+            <div style={{ padding: '20px 48px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px', borderTop: '1px solid #f8fafc' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '48px' }}>
+                <div
+                  className="flex items-center gap-2"
+                  style={{ color: '#475569', cursor: 'pointer' }}
+                  onClick={(e) => handleUpvoteClick(e, report.id)}
+                >
+                  <ArrowUp style={{ width: '18px', height: '18px', color: report.hasUserUpvoted ? '#059669' : '#94a3b8' }} />
+                  <span style={{ fontSize: '14px', fontWeight: 800 }}>{report.upvotes}</span>
+                </div>
+                <div className="flex items-center gap-2" style={{ color: '#475569' }}>
+                  <MessageCircle style={{ width: '18px', height: '18px', color: '#94a3b8' }} />
+                  <span style={{ fontSize: '14px', fontWeight: 800 }}>{report.comments.length}</span>
+                </div>
+              </div>
+              <div style={{ color: '#e2e8f0' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14m-7-7 7 7-7 7" />
+                </svg>
               </div>
             </div>
           </motion.div>
@@ -334,7 +405,7 @@ export function HomeScreen({
 
         {filteredReports.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">
-            <p>No reports found for your search.</p>
+            <p>{t.noReportsFound}</p>
           </div>
         )}
       </div>
@@ -357,7 +428,7 @@ export function HomeScreen({
             className="fixed bottom-20 right-4 z-[9999] bg-green-500 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-2 max-w-xs"
           >
             <CheckCircle className="w-5 h-5" />
-            <span className="font-medium">Upvoted successfully!</span>
+            <span className="font-medium">{t.upvotedSuccess}</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -374,7 +445,7 @@ export function HomeScreen({
           >
             <MessageCircle className="w-5 h-5" />
             <div className="flex flex-col">
-              <span className="font-medium">Comment added!</span>
+              <span className="font-medium">{t.commentAdded}</span>
               <span className="text-sm opacity-90 truncate">{tempComment}</span>
             </div>
           </motion.div>
@@ -392,7 +463,7 @@ export function HomeScreen({
             className="fixed bottom-52 right-4 z-[9999] bg-orange-500 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-2 max-w-xs"
           >
             <Flag className="w-5 h-5" />
-            <span className="font-medium">Report flagged for review</span>
+            <span className="font-medium">{t.flaggedSuccess}</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -601,11 +672,11 @@ export function HomeScreen({
               <div className="bg-red-100 p-2 rounded-full">
                 <Trash2 className="w-5 h-5 text-red-600" />
               </div>
-              <h3 className="text-lg font-semibold">Delete Report?</h3>
+              <h3 className="text-lg font-semibold">{t.deleteConfirmTitle}</h3>
             </div>
 
             <p className="text-sm text-gray-600 mb-6">
-              Are you sure you want to delete "<strong>{selectedReport.title}</strong>"? This action cannot be undone.
+              {t.deleteConfirmMessage.replace('this report', `"${selectedReport.title}"`)}
             </p>
 
             <div className="flex gap-3">
@@ -614,14 +685,14 @@ export function HomeScreen({
                 className="flex-1"
                 onClick={() => setShowDeleteConfirm(false)}
               >
-                Cancel
+                {t.cancelAction}
               </Button>
               <Button
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white"
                 onClick={handleDeleteReport}
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                Delete
+                {t.delete}
               </Button>
             </div>
           </div>

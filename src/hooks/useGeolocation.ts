@@ -43,7 +43,7 @@ export interface UseGeolocationReturn {
 
 const DEFAULT_OPTIONS: UseGeolocationOptions = {
     enableHighAccuracy: true,
-    timeout: 10000, // 10 seconds
+    timeout: 30000, // 30 seconds
     maximumAge: 0, // Don't use cached position
     watch: true,
 };
