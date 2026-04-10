@@ -170,7 +170,12 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
     useEffect(() => {
         if (!mapRef.current || leafletMapRef.current) return;
 
-        const districtCenter = user.district ? getDistrictCenter(user.district) : [0, 0];
+        // Default to Tamil Nadu center; override with user's GPS if available
+        const TAMIL_NADU_LAT = 11.1271;
+        const TAMIL_NADU_LNG = 78.6569;
+
+        const centerLat = (user.coordinates && user.coordinates.lat) ? user.coordinates.lat : TAMIL_NADU_LAT;
+        const centerLng = (user.coordinates && user.coordinates.lng) ? user.coordinates.lng : TAMIL_NADU_LNG;
 
         leafletMapRef.current = L.map(mapRef.current, {
             zoomControl: true,
@@ -181,7 +186,7 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
             keyboard: true,
             dragging: true,
             touchZoom: true
-        }).setView([districtCenter[1], districtCenter[0]], 13);
+        }).setView([centerLat, centerLng], 13);
 
         leafletMapRef.current.zoomControl.setPosition('topright');
 
@@ -189,12 +194,14 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
             attribution: '© OpenStreetMap contributors'
         }).addTo(leafletMapRef.current);
 
-        // Force map to resize after initialization
-        setTimeout(() => {
-            if (leafletMapRef.current) {
-                leafletMapRef.current.invalidateSize();
-            }
-        }, 100);
+        // Force map to resize after initialization and any flex-box layout shifts
+        const triggerResize = () => {
+             if (leafletMapRef.current) {
+                 leafletMapRef.current.invalidateSize();
+             }
+        };
+        setTimeout(triggerResize, 100);
+        setTimeout(triggerResize, 500); // Secondary catch if layout finishes later
 
         return () => {
             if (leafletMapRef.current) {
@@ -203,7 +210,7 @@ export function SmartHeatmap({ reports, user, onReportSelect, onUpvote }: SmartH
                 leafletMapRef.current = null;
             }
         };
-    }, [user.district]);
+    }, [user.coordinates]);
 
     // Update heatmap layer
     useEffect(() => {

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Swachh Nagar</string>
+    <string name="title_activity_main">Swachh Nagar</string>
+    <string name="package_name">com.swachhnagar.app</string>
+    <string name="custom_url_scheme">com.swachhnagar.app</string>
+</resources>

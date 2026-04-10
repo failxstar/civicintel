@@ -329,6 +329,11 @@ export function HomeScreen({
                   alt={report.title}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
+                {report.isTamperDetected && (
+                  <div className="absolute top-1 right-1 bg-orange-500 text-white text-[9px] px-1 py-0.5 rounded-full font-medium">
+                    ⚠️
+                  </div>
+                )}
               </div>
 
               <div className="flex-1 min-w-0" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>

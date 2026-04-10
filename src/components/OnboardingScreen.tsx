@@ -121,6 +121,7 @@ export function OnboardingScreen({ onComplete, currentLanguage, onLanguageChange
 
       setLocationError(message);
 
+
       // Only switch to error screen if we were waiting for it
       // Don't interrupt user if they are entering manually or already succeeded
       setLocationStep(current => {
