@@ -85,11 +85,20 @@ export async function reverseGeocode(
         // Extract location information from response
         const address = data.address;
 
-        // FORCE CONSISTENT LOCATION FOR PROTOTYPE (matches backend reports)
-        const city = 'Poolangulathupatti';
-        const district = 'Tiruchirappalli';
-        const state = 'Tamil Nadu';
-        const country = 'India';
+        // Try to get city name from multiple possible fields
+        const city =
+            address.village ||
+            address.suburb ||
+            address.neighbourhood ||
+            address.town ||
+            address.city ||
+            address.municipality ||
+            address.county ||
+            'Unknown';
+
+        const district = address.district || address.city_district || address.county;
+        const state = address.state || '';
+        const country = address.country || '';
 
         const street = address.road || address.street;
         const neighbourhood = address.neighbourhood;
@@ -191,16 +200,6 @@ export function getCachedLocation(): {
         if (!cached) return null;
 
         const parsed = JSON.parse(cached);
-        // Force consistent location for prototype
-        if (parsed) {
-            return {
-                ...parsed,
-                city: 'Poolangulathupatti',
-                displayName: 'Poolangulathupatti, Tamil Nadu, India',
-                formattedAddress: 'Poolangulathupatti, Tamil Nadu, India'
-            };
-        }
-
         return parsed;
     } catch {
         return null;
