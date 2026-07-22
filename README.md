@@ -1,4 +1,4 @@
-# 🌟 Swachh Nagar - Crowdsourced Civic Issue Reporting System
+# 🌟 Civicintel - Crowdsourced Civic Issue Reporting System
 
 <div align="center">
 
