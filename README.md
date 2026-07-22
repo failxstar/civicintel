@@ -40,13 +40,13 @@
 - ❌ Language barriers preventing inclusive participation
 - ❌ No real-time tracking and analytics
 
-**Our Solution:** Swachh Nagar addresses these challenges with an AI-powered, mobile-first platform that democratizes civic engagement and accelerates municipal response times.
+**Our Solution:** Civivintel addresses these challenges with an AI-powered, mobile-first platform that democratizes civic engagement and accelerates municipal response times.
 
 ---
 
 ## 💡 Solution Overview
 
-**Swachh Nagar** is an intelligent, crowdsourced civic issue reporting platform designed for Smart Cities. Built specifically for the **Siliguri Municipal Corporation** as a pilot, it leverages AI, geolocation, and real-time analytics to transform how citizens interact with local governance.
+**Civicintel** is an intelligent, crowdsourced civic issue reporting platform designed for Smart Cities. Built specifically for the **Siliguri Municipal Corporation** as a pilot, it leverages AI, geolocation, and real-time analytics to transform how citizens interact with local governance.
 
 ### Core Value Propositions:
 
@@ -201,7 +201,7 @@
 ### Project Structure
 
 ```
-Swachh Nagar Mobile Prototype/
+Civicintel Mobile Prototype/
 ├── public/                      # Static assets
 ├── src/
 │   ├── components/              # React components
@@ -280,5 +280,5 @@ Swachh Nagar Mobile Prototype/
 
 </div>
 
-## Thank you for exploring Swachh Nagar!
+## Thank you for exploring Civicintel!
 
